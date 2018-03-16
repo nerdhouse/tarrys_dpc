@@ -7,7 +7,7 @@
 create_pids(Topology) ->
   {InitiatorName, Nodes} = Topology,
   NodePids = [{N#node.name, spawn(harrys, work, [N])} || N <- Nodes],
-  io:fwrite("NodePids: ~p~n", [NodePids]),
+  %% io:fwrite("NodePids: ~p~n", [NodePids]),
   [ Pid ! NodePids || {_, Pid} <- NodePids],
   {_, InitiatorPid} = lists:keyfind(InitiatorName, 1, NodePids),
   InitiatorPid ! [{root, self()}].
@@ -29,14 +29,14 @@ work(Node, NodePids, InitialParentPid, SentToPids) ->
         _ -> InitialParentPid
       end,
 
-      io:fwrite("~p: Current token: ~p~n", [Node#node.name, Token]),
-      io:fwrite("~p: Parent PID: ~p~n", [Node#node.name, ParentPid]),
+      %% io:fwrite("~p: Current token: ~p~n", [Node#node.name, Token]),
+      %% io:fwrite("~p: Parent PID: ~p~n", [Node#node.name, ParentPid]),
 
       UnsentNodePids = [
         {NodeName, Pid} || {NodeName, Pid} <- NodePids,
                not lists:member({NodeName, Pid}, SentToPids),
                Pid /= ParentPid],
-      io:fwrite("~p: Unsent PIDs: ~p~n", [Node#node.name, UnsentNodePids]),
+      %% io:fwrite("~p: Unsent PIDs: ~p~n", [Node#node.name, UnsentNodePids]),
 
       NewToken = (Token ++ [{Node#node.name, self()}]),
 
@@ -76,6 +76,7 @@ main() ->
   receive
     Token ->
       [_ | FinalToken] = [NodeName || {NodeName, _} <- Token],
-      io:fwrite("Final token: ~p~n", [FinalToken])
+      %% io:fwrite("Final token: ~p~n", [FinalToken])
+      io:fwrite("~s~n", [string:join(FinalToken, " ")])
   end.
 
