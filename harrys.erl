@@ -10,7 +10,7 @@ create_pids(Topology) ->
   io:fwrite("NodePids: ~p~n", [NodePids]),
   [ Pid ! NodePids || {_, Pid} <- NodePids],
   {_, InitiatorPid} = lists:keyfind(InitiatorName, 1, NodePids),
-  InitiatorPid ! [self()].
+  InitiatorPid ! [{root, self()}].
 
 work(Node) ->
   receive
@@ -24,7 +24,7 @@ work(Node) ->
 work(Node, NodePids, InitialParentPid, SentToPids) ->
   receive
     Token ->
-      ParentPid = case InitialParentPid of
+      {ParentName, ParentPid} = case InitialParentPid of
         {} -> lists:last(Token);
         _ -> InitialParentPid
       end,
@@ -38,13 +38,17 @@ work(Node, NodePids, InitialParentPid, SentToPids) ->
                Pid /= ParentPid],
       io:fwrite("~p: Unsent PIDs: ~p~n", [Node#node.name, UnsentNodePids]),
 
-      NewToken = (Token ++ [self()]),
+      NewToken = (Token ++ [{Node#node.name, self()}]),
 
       case UnsentNodePids of
         [] -> ParentPid ! NewToken;
         [{NodeName, Pid} | _] ->
           Pid ! NewToken,
-          work(Node, NodePids, ParentPid, (SentToPids ++ [{NodeName, Pid}]))
+          work(
+            Node,
+            NodePids,
+            {ParentName, ParentPid},
+            (SentToPids ++ [{NodeName, Pid}]))
       end
   end.
 
@@ -54,18 +58,24 @@ zip_neighbours(NodePids, Neighbours) ->
 
 %% Get the topology of the network
 %% Returns a tuple of the name of the initial node, and a list of nodes
-get_topology() -> {
-    a,
-    [
-      #node{name = a, neighbours = [b, c]},
-      #node{name = b, neighbours = [a, c]},
-      #node{name = c, neighbours = [a, b]}]
- }.
+get_topology() ->
+  [InitialNodeName | _] = string:tokens(io:get_line(""), " \n"),
+  {InitialNodeName, get_topology([])}.
+get_topology(Nodes) ->
+  case io:get_line("") of
+    eof -> Nodes;
+    NodeStr ->
+      [NodeName | Neighbours] = string:tokens(NodeStr, " \n"),
+      get_topology(
+        [#node{name = NodeName, neighbours = Neighbours} | Nodes])
+  end.
 
 main() ->
-  Tuple = get_topology(),
-  create_pids(Tuple),
+  Topology = get_topology(),
+  create_pids(Topology),
   receive
-    FinalToken -> io:fwrite("Final token: ~p~n", [FinalToken])
+    Token ->
+      [_ | FinalToken] = [NodeName || {NodeName, _} <- Token],
+      io:fwrite("Final token: ~p~n", [FinalToken])
   end.
 
