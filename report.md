@@ -12,13 +12,13 @@ Dan Jones `1427970`
 
 ## The Linux commands
 
-`earlc harrys.erl`
+`earlc tarrys.erl`
 
-`erl -run harrys main -s init stop -noshell input.txt`
+`erl -run tarrys main -s init stop -noshell input.txt`
 
 ## Terminal output
 
-here
+p q t r q s t s p s u t u s q r t q p
 
 ## How far you got.
 
