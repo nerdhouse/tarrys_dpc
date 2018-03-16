@@ -42,7 +42,10 @@ work(Node, NodePids, InitialParentPid, SentToPids) ->
 
       case UnsentNodePids of
         [] -> ParentPid ! NewToken;
-        [{NodeName, Pid} | _] ->
+        _ ->
+          %% Select random element from `UnsentNodePids`
+          {NodeName, Pid} = lists:nth(
+            rand:uniform(length(UnsentNodePids)), UnsentNodePids),
           Pid ! NewToken,
           work(
             Node,
