@@ -13,7 +13,7 @@
 
 `erlc tarrys.erl`
 
-`erl -run tarrys main -s init stop -noshell input.txt`
+`erl -run tarrys main -s init stop -noshell
 
 ## Terminal output
 
