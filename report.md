@@ -2,17 +2,16 @@
 
 ## Group 28
 
-Parth Chandratreya `1441842`
-
-Misha Wagner `1436049`
-
-Dom Williams `1433805`
-
-Dan Jones `1427970`
+| Name        | ID           |
+| ------------- |:-------------:|
+| Parth Chandratreya | 1441842 |
+| Misha Wagner | 1436049 |
+| Dom Williams | 1433805 |
+| Dan Jones | 1427970 |
 
 ## The Linux commands
 
-`earlc tarrys.erl`
+`erlc tarrys.erl`
 
 `erl -run tarrys main -s init stop -noshell input.txt`
 
@@ -20,7 +19,7 @@ Dan Jones `1427970`
 
 p q t r q s t s p s u t u s q r t q p
 
-## How far you got.
+## How far you got
 
 Assignment fully completed and correct
 
