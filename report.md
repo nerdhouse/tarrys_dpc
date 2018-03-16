@@ -22,4 +22,9 @@ here
 
 Assignment fully completed and correct
 
+## Extra work undertaken
+
+We created a script that reads an input filename from stdin, which generates a `docker-compose.yaml` file.
+This can then be used to create the network as represented by the file, and nodes can only access nodes to which they have a connection.
+
 ## Notes
