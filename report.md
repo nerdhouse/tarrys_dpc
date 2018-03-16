@@ -26,5 +26,10 @@ Assignment fully completed and correct
 
 We created a script that reads an input filename from stdin, which generates a `docker-compose.yaml` file.
 This can then be used to create the network as represented by the file, and nodes can only access nodes to which they have a connection.
+Usage:
+`./generate.py input.txt`
+And to bring up the docker containers and network:
+`docker-compose up`
+This requires having python3, docker and docker-compose installed.
 
 ## Notes
