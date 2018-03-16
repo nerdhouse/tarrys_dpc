@@ -5,16 +5,20 @@
 
 %% Create a process for every node in a network
 create_pids(Topology) ->
-  {_, Nodes} = Topology,
+  {InitiatorName, Nodes} = Topology,
   NodePids = [{N#node.name, spawn(harrys, work, [N])} || N <- Nodes],
-  [ Pid ! NodePids || {_, Pid} <- NodePids].
+  [ Pid ! NodePids || {_, Pid} <- NodePids],
+  {_, InitiatorPid} = lists:keyfind(InitiatorName, 1, NodePids),
+  InitiatorPid ! [].
 
 work(Node) ->
   receive
     NodePids -> work(Node, zip_neighbours(NodePids, Node#node.neighbours))
   end.
 work(Node, Pids) ->
-  io:fwrite("Got PIDS: ~p~n", [Pids]).
+  receive
+    Token -> io:fwrite("~p: Got token: ~p~n", [Node#node.name, Token])
+  end.
 
 zip_neighbours(NodePids, Neighbours) ->
   [{NodeName, Pid} ||
