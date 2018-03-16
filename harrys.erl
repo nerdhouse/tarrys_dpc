@@ -1,5 +1,5 @@
 -module(harrys).
--compile(export_all).
+-export([main/0, work/1]).
 
 -record(node, {name, neighbours = []}).
 
