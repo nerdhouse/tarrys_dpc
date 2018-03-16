@@ -1,5 +1,5 @@
 -module(harrys).
--export([main/0, work/1, work/2]).
+-export([main/0, work/1, work/4]).
 
 -record(node, {name, neighbours = []}).
 
@@ -7,17 +7,45 @@
 create_pids(Topology) ->
   {InitiatorName, Nodes} = Topology,
   NodePids = [{N#node.name, spawn(harrys, work, [N])} || N <- Nodes],
+  io:fwrite("NodePids: ~p~n", [NodePids]),
   [ Pid ! NodePids || {_, Pid} <- NodePids],
   {_, InitiatorPid} = lists:keyfind(InitiatorName, 1, NodePids),
-  InitiatorPid ! [].
+  InitiatorPid ! [self()].
 
 work(Node) ->
   receive
-    NodePids -> work(Node, zip_neighbours(NodePids, Node#node.neighbours))
+    NodePids ->
+      work(
+        Node,
+        zip_neighbours(NodePids, Node#node.neighbours),
+        {},
+        [])
   end.
-work(Node, Pids) ->
+work(Node, NodePids, InitialParentPid, SentToPids) ->
   receive
-    Token -> io:fwrite("~p: Got token: ~p~n", [Node#node.name, Token])
+    Token ->
+      ParentPid = case InitialParentPid of
+        {} -> lists:last(Token);
+        _ -> InitialParentPid
+      end,
+
+      io:fwrite("~p: Current token: ~p~n", [Node#node.name, Token]),
+      io:fwrite("~p: Parent PID: ~p~n", [Node#node.name, ParentPid]),
+
+      UnsentNodePids = [
+        {NodeName, Pid} || {NodeName, Pid} <- NodePids,
+               not lists:member({NodeName, Pid}, SentToPids),
+               Pid /= ParentPid],
+      io:fwrite("~p: Unsent PIDs: ~p~n", [Node#node.name, UnsentNodePids]),
+
+      NewToken = (Token ++ [self()]),
+
+      case UnsentNodePids of
+        [] -> ParentPid ! NewToken;
+        [{NodeName, Pid} | _] ->
+          Pid ! NewToken,
+          work(Node, NodePids, ParentPid, (SentToPids ++ [{NodeName, Pid}]))
+      end
   end.
 
 zip_neighbours(NodePids, Neighbours) ->
@@ -37,5 +65,7 @@ get_topology() -> {
 main() ->
   Tuple = get_topology(),
   create_pids(Tuple),
-  ok.
+  receive
+    FinalToken -> io:fwrite("Final token: ~p~n", [FinalToken])
+  end.
 
