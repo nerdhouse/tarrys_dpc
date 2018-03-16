@@ -1,4 +1,4 @@
--module(harrys).
+-module(tarrys).
 -export([main/0, work/1, work/4]).
 
 -record(node, {name, neighbours = []}).
@@ -6,7 +6,7 @@
 %% Create a process for every node in a network
 start_network({InitiatorName, Nodes}) ->
   %% Spawn a process for each node and store the PIDs
-  NodePids = [{N#node.name, spawn(harrys, work, [N])} || N <- Nodes],
+  NodePids = [{N#node.name, spawn(tarrys, work, [N])} || N <- Nodes],
   %% Let each node know what the PIDs of the other nodes are
   [ Pid ! NodePids || {_, Pid} <- NodePids],
   %% Get the initiator's PID
