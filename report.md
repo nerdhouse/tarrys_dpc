@@ -11,13 +11,19 @@
 
 ## The Linux commands
 
-`erlc tarrys.erl`
+```
+# compile
+erlc tarrys.erl
 
-`erl -run tarrys main -s init stop -noshell`
+# run
+erl -run tarrys main -s init stop -noshell
+```
 
 ## Terminal output
 
+`
 p q t r q s t s p s u t u s q r t q p
+`
 
 ## How far you got
 
